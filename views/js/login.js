@@ -25,3 +25,25 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
+$(document).ready(() => {
+    $("form#login_form > .form-group:nth-of-type(2)").after("<div class=\"form-group\">" +
+        "<label class=\"control-label\" for=\"passwd\">" +
+        "2FA code" +
+        "</label>" +
+        "<input name=\"auth_code\" type=\"password\" id=\"auth_code\" class=\"form-control\" value=\"\" tabindex=\"3\" placeholder=\" 2FA code\">" +
+        "</div>");
+
+    //https://stackoverflow.com/questions/995183/how-to-allow-only-numeric-0-9-in-html-inputbox-using-jquery/995193#995193
+    $("#auth_code").on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+        if (/^\d*$/.test(this.value)) {
+            this.oldValue = this.value;
+            this.oldSelectionStart = this.selectionStart;
+            this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+            this.value = this.oldValue;
+            this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        } else {
+            this.value = "";
+        }
+    });
+})

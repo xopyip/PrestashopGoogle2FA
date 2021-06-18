@@ -64,8 +64,7 @@ class Xip_2fa extends Module
         include(dirname(__FILE__).'/sql/install.php');
 
         return parent::install() &&
-            $this->registerHook('header') &&
-            $this->registerHook('backOfficeHeader') &&
+            $this->registerHook('actionAdminLoginControllerSetMedia') &&
             $this->registerHook('actionAdminLoginControllerLoginBefore');
     }
 
@@ -184,35 +183,19 @@ class Xip_2fa extends Module
         }
     }
 
-    /**
-    * Add the CSS & JavaScript files you want to be loaded in the BO.
-    */
-    public function hookBackOfficeHeader()
+    public function hookActionAdminLoginControllerSetMedia()
     {
-        if (Tools::getValue('module_name') == $this->name) {
-            $this->context->controller->addJS($this->_path.'views/js/back.js');
-            $this->context->controller->addCSS($this->_path.'views/css/back.css');
+        if(Configuration::get('XIP_2FA_LIVE_MODE', true)) {
+            $this->context->controller->addJS($this->_path . 'views/js/login.js');
         }
     }
 
-    /**
-     * Add the CSS & JavaScript files you want to be added on the FO.
-     */
-    public function hookHeader()
-    {
-        $this->context->controller->addJS($this->_path.'/views/js/front.js');
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-    }
 
     public function hookActionAdminLoginControllerLoginBefore()
     {
-        //we must inject our js into form
-        //administration/themes/default/template/controllers/login/content.tpl
-
         if(Configuration::get('XIP_2FA_LIVE_MODE', true)){
-            //if auth is wrong then
+            //if auth code is wrong then
             //$this->context->employee->logout();
-
         }
     }
 }
