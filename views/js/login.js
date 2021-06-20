@@ -46,4 +46,47 @@ $(document).ready(() => {
             this.value = "";
         }
     });
+
+    //todo: try to do it in more generic way, because this implementation will break when prestashop change login form
+    window.doAjaxLogin = function(redirect) {
+        $('#error').hide();
+        $('#login_form').fadeIn('slow', function() {
+            $.ajax({
+                type: "POST",
+                headers: { "cache-control": "no-cache" },
+                url: "index.php" + '?rand=' + new Date().getTime(),
+                async: true,
+                dataType: "json",
+                data: {
+                    ajax: "1",
+                    token: "",
+                    controller: "AdminLogin",
+                    submitLogin: "1",
+                    passwd: $('#passwd').val(),
+                    email: $('#email').val(),
+                    redirect: redirect,
+                    stay_logged_in: $('#stay_logged_in:checked').val(),
+                    auth_code: $('#auth_code').val()
+                },
+                beforeSend: function() {
+                    feedbackSubmit();
+                    l.start();
+                },
+                success: function(jsonData) {
+                    if (jsonData.hasErrors) {
+                        displayErrors(jsonData.errors);
+                        l.stop();
+                    } else {
+                        window.location.assign(jsonData.redirect);
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    l.stop();
+                    $('#error').html('<h3>TECHNICAL ERROR:</h3><p>Details: Error thrown: ' + XMLHttpRequest + '</p><p>Text status: ' + textStatus + '</p>').removeClass('hide');
+                    $('#login_form').fadeOut('slow');
+                }
+            });
+        });
+    }
 })
+
