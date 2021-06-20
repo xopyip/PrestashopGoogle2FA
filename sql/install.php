@@ -26,9 +26,11 @@
 $sql = array();
 
 $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'xip_2fa` (
-    `id_xip_2fa` int(11) NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY  (`id_xip_2fa`)
+    `id` int(11) auto_increment primary key,
+    `id_employee` int(10) not null,
+	`private_code` varchar(40) not null
 ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
