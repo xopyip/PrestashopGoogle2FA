@@ -98,7 +98,7 @@ class Xip_2fa extends Module
     public function installTab()
     {
         $tab = new Tab();
-        $tab->class_name = 'TwoFactorConfiguration';
+        $tab->class_name = 'AdminTwoFactorConfiguration';
         $tab->module = 'xip_2fa';
         $tab->name[1] = '2FA Configuration';
         $tab->id_parent = 0;
@@ -110,6 +110,10 @@ class Xip_2fa extends Module
     public function uninstallTab()
     {
         $id_tab = (int)Tab::getIdFromClassName('TwoFactorConfiguration');
+        $tab = new Tab($id_tab);
+
+        if(Validate::isLoadedObject($tab)) $tab->delete();
+        $id_tab = (int)Tab::getIdFromClassName('AdminTwoFactorConfiguration');
         $tab = new Tab($id_tab);
 
         return Validate::isLoadedObject($tab) && $tab->delete();
