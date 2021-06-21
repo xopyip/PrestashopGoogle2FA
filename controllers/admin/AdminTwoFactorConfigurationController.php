@@ -5,6 +5,9 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class AdminTwoFactorConfigurationController extends ModuleAdminController
 {
+
+    const CONTROLLER_NAME = 'AdminTwoFactorConfiguration';
+
     public function __construct()
     {
         parent::__construct();
@@ -38,8 +41,8 @@ class AdminTwoFactorConfigurationController extends ModuleAdminController
 
         $template->assign([
             'isConfigured' => !!$privateCode,
-            'revokeURL' => $this->context->link->getAdminLink('AdminTwoFactorConfiguration', true, [], array('revoke' => 1)),
-            'generateURL' => $this->context->link->getAdminLink('AdminTwoFactorConfiguration', true, [], array('generate' => 1)),
+            'revokeURL' => $this->context->link->getAdminLink(self::CONTROLLER_NAME, true, [], array('revoke' => 1)),
+            'generateURL' => $this->context->link->getAdminLink(self::CONTROLLER_NAME, true, [], array('generate' => 1)),
         ]);
 
         $this->context->smarty->assign([
@@ -63,7 +66,7 @@ class AdminTwoFactorConfigurationController extends ModuleAdminController
         if (Tools::getValue('generate')) {
             $newKey = sha1(microtime(true) . mt_rand(10000, 90000));
             Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('INSERT INTO `' . _DB_PREFIX_ . 'xip_2fa`(id_employee, private_code) VALUES(' . $employeeId . ', "' . $newKey . '")');
-            Tools::redirect($this->context->link->getAdminLink('AdminTwoFactorConfiguration', true, [], array('generated' => $newKey)));
+            Tools::redirect($this->context->link->getAdminLink(self::CONTROLLER_NAME, true, [], array('generated' => $newKey)));
             return;
         }
     }
