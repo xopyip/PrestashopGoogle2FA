@@ -214,11 +214,16 @@ class Xip_2fa extends Module
             if (!$private_code) {
                 return;
             }
+            if(strlen($code) !== 6){
+                $this->context->controller->errors[] = 'Wrong 2FA code!';
+                $this->context->employee->logout();
+                return;
+            }
 
             $url = "https://www.authenticatorApi.com/Validate.aspx?Pin=$code&SecretCode=$private_code";
             $res = HttpClient::create()->request('GET', $url);
 
-            if($res->getContent() === "False"){
+            if($res->getContent() !== "True"){
                 $this->context->controller->errors[] = 'Wrong 2FA code!';
                 $this->context->employee->logout();
             }
