@@ -24,6 +24,7 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
+require_once dirname(__FILE__)."/TwoFactorKeyModel.php";
 use PrestaShop\PrestaShop\Core\Util\InternationalizedDomainNameConverter;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -121,16 +122,17 @@ class Xip_2fa extends Module
 
         $email = $this->IDNConverter->emailToUtf8(trim(Tools::getValue('email')));
 
-        $employee = $this->getEmployee($email);
+        $employee = (new Employee())->getByEmail($email);
         if (!$employee) {
             return;
         }
 
-        $private_code = $this->getPrivateCode($employee);
+        $private_code = TwoFactorKeyModel::getPrivateCode($employee->id);
 
         if (!$private_code) {
             return;
         }
+
         if (strlen($code) !== 6) {
             $this->context->controller->errors[] = 'Wrong 2FA code!';
             $this->context->employee->logout();
@@ -147,30 +149,5 @@ class Xip_2fa extends Module
 
     }
 
-    private function getEmployee($email)
-    {
-        if (!Validate::isEmail($email)) {
-            die(Tools::displayError());
-        }
 
-        $sql = new DbQuery();
-        $sql->select('e.*');
-        $sql->from('employee', 'e');
-        $sql->where('e.`email` = \'' . pSQL($email) . '\'');
-        $sql->where('e.`active` = 1');
-
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
-    }
-
-    private function getPrivateCode(array $employee)
-    {
-        $sql = new DbQuery();
-        $sql->select('x.private_code');
-        $sql->from('xip_2fa', 'x');
-        $sql->where('x.id_employee = ' . ($employee['id_employee']));
-
-        $ret = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
-        if (!$ret) return false;
-        return $ret['private_code'];
-    }
 }
