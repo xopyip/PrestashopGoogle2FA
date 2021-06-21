@@ -33,7 +33,6 @@ if (!defined('_PS_VERSION_')) {
 
 class Xip_2fa extends Module
 {
-    protected $config_form = false;
     private $IDNConverter;
 
     public function __construct()
@@ -71,7 +70,8 @@ class Xip_2fa extends Module
 
         return parent::install() &&
             $this->registerHook('actionAdminLoginControllerSetMedia') &&
-            $this->registerHook('actionAdminLoginControllerLoginBefore');
+            $this->registerHook('actionAdminLoginControllerLoginBefore') &&
+            $this->installTab();
     }
 
     public function uninstall()
@@ -80,7 +80,40 @@ class Xip_2fa extends Module
 
         include(dirname(__FILE__) . '/sql/uninstall.php');
 
-        return parent::uninstall();
+        return parent::uninstall() && $this->uninstallTab();
+    }
+
+    public function enable($force_all = false)
+    {
+        return parent::enable($force_all) &&
+            $this->installTab();
+    }
+
+    public function disable($force_all = false)
+    {
+        return parent::disable($force_all) &&
+            $this->uninstallTab();
+    }
+
+    public function installTab()
+    {
+        $tab = new Tab();
+        $tab->class_name = 'TwoFactorConfiguration';
+        $tab->module = 'xip_2fa';
+        $tab->name[1] = '2FA Configuration';
+        $tab->id_parent = 0;
+        $tab->active = 1;
+        $tab->icon = 'security';
+        return $tab->save();
+    }
+
+    public function uninstallTab()
+    {
+        $id_tab = (int)Tab::getIdFromClassName('TwoFactorConfiguration');
+        $tab = new Tab($id_tab);
+
+        return Validate::isLoadedObject($tab) && $tab->delete();
+
     }
 
     /**
@@ -205,7 +238,7 @@ class Xip_2fa extends Module
             $email = $this->IDNConverter->emailToUtf8(trim(Tools::getValue('email')));
 
             $employee = $this->getEmployee($email);
-            if(!$employee){
+            if (!$employee) {
                 return;
             }
 
@@ -214,7 +247,7 @@ class Xip_2fa extends Module
             if (!$private_code) {
                 return;
             }
-            if(strlen($code) !== 6){
+            if (strlen($code) !== 6) {
                 $this->context->controller->errors[] = 'Wrong 2FA code!';
                 $this->context->employee->logout();
                 return;
@@ -223,7 +256,7 @@ class Xip_2fa extends Module
             $url = "https://www.authenticatorApi.com/Validate.aspx?Pin=$code&SecretCode=$private_code";
             $res = HttpClient::create()->request('GET', $url);
 
-            if($res->getContent() !== "True"){
+            if ($res->getContent() !== "True") {
                 $this->context->controller->errors[] = 'Wrong 2FA code!';
                 $this->context->employee->logout();
             }
@@ -254,8 +287,8 @@ class Xip_2fa extends Module
         $sql->from('xip_2fa', 'x');
         $sql->where('x.id_employee = ' . ($employee['id_employee']));
 
-        $ret =  Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
-        if(!$ret) return false;
+        $ret = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
+        if (!$ret) return false;
         return $ret['private_code'];
     }
 }
