@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-	<name>xip_2fa</name>
+	<name>xip2fa</name>
 	<displayName><![CDATA[XIP 2FA]]></displayName>
 	<version><![CDATA[1.0.0]]></version>
 	<description><![CDATA[Two factor authentication]]></description>

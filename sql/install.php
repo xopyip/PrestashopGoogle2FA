@@ -23,9 +23,10 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 $sql = array();
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'xip_2fa` (
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'xip2fa` (
     `id` int(11) auto_increment primary key,
     `id_employee` int(10) not null,
 	`private_code` varchar(40) not null

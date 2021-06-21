@@ -1,30 +1,26 @@
 <?php
 /**
- * 2007-2021 PrestaShop
+ * Copyright 2021 XopyIP
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- * NOTICE OF LICENSE
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+ * OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
- *
- * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2021 PrestaShop SA
- * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *  International Registered Trademark & Property of PrestaShop SA
+ * @author    XopyIP <mateusz.baluch@wp.pl>
+ * @copyright 2021 XopyIP
+ * @license   https://opensource.org/licenses/MIT
  */
 
-require_once dirname(__FILE__)."/TwoFactorKeyModel.php";
+require_once dirname(__FILE__) . "/TwoFactorKeyModel.php";
+
 use PrestaShop\PrestaShop\Core\Util\InternationalizedDomainNameConverter;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -32,13 +28,13 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class Xip_2fa extends Module
+class Xip2Fa extends Module
 {
     private $IDNConverter;
 
     public function __construct()
     {
-        $this->name = 'xip_2fa';
+        $this->name = 'xip2fa';
         $this->tab = 'administration';
         $this->version = '1.0.0';
         $this->author = 'XopyIP';
@@ -67,7 +63,6 @@ class Xip_2fa extends Module
 
     public function uninstall()
     {
-
         include(dirname(__FILE__) . '/sql/uninstall.php');
 
         return parent::uninstall() && $this->uninstallTab();
@@ -89,7 +84,7 @@ class Xip_2fa extends Module
     {
         $tab = new Tab();
         $tab->class_name = 'AdminTwoFactorConfiguration';
-        $tab->module = 'xip_2fa';
+        $tab->module = 'xip2fa';
         $tab->name[1] = '2FA Configuration';
         $tab->id_parent = 0;
         $tab->active = 1;
@@ -99,15 +94,10 @@ class Xip_2fa extends Module
 
     public function uninstallTab()
     {
-        $id_tab = (int)Tab::getIdFromClassName('TwoFactorConfiguration');
-        $tab = new Tab($id_tab);
-
-        if (Validate::isLoadedObject($tab)) $tab->delete();
         $id_tab = (int)Tab::getIdFromClassName('AdminTwoFactorConfiguration');
         $tab = new Tab($id_tab);
 
         return Validate::isLoadedObject($tab) && $tab->delete();
-
     }
 
     public function hookActionAdminLoginControllerSetMedia()
@@ -133,7 +123,7 @@ class Xip_2fa extends Module
             return;
         }
 
-        if (strlen($code) !== 6) {
+        if (Tools::strlen($code) !== 6) {
             $this->context->controller->errors[] = 'Wrong 2FA code!';
             $this->context->employee->logout();
             return;
@@ -146,8 +136,5 @@ class Xip_2fa extends Module
             $this->context->controller->errors[] = 'Wrong 2FA code!';
             $this->context->employee->logout();
         }
-
     }
-
-
 }
